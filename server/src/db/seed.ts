@@ -1,0 +1,173 @@
+import { supabase } from './database';
+
+const PROMPTS = [
+  // ── IMAGE PROMPTS ────────────────────────────────────────────────────────
+  {
+    title: 'Ethereal Forest Spirit',
+    description: 'A mystical portrait of a glowing forest spirit surrounded by bioluminescent flora. Perfect for fantasy art, book covers, and digital illustrations.',
+    category: 'image',
+    preview_url: 'https://images.unsplash.com/photo-1518837695005-2083093ee35b?w=800&auto=format&fit=crop',
+    prompt_text: 'ethereal forest spirit, translucent glowing skin, surrounded by bioluminescent mushrooms and fireflies, mystical ancient forest background, misty atmosphere, soft volumetric lighting, 8k resolution, hyperrealistic, trending on artstation, shot on Sony Alpha 1, --ar 2:3 --v 6.1 --q 2 --style raw',
+    ai_tool: 'Midjourney',
+    tags: ['fantasy', 'portrait', 'nature', 'mystical', 'glow'],
+    is_featured: true,
+    is_free: true,
+  },
+  {
+    title: 'Cyberpunk Night Market',
+    description: 'Immersive cyberpunk street scene with neon-lit vendors and futuristic technology. Ideal for sci-fi projects, game art, and concept design.',
+    category: 'image',
+    preview_url: 'https://images.unsplash.com/photo-1555680202-c86f0e12f086?w=800&auto=format&fit=crop',
+    prompt_text: 'bustling cyberpunk night market, neon lights reflecting on wet pavement, street vendors selling holographic items, crowded alleyways with floating signs in Chinese and Japanese, atmospheric fog, cinematic composition, photorealistic, 8k ultra detail, --ar 16:9 --v 6.1 --style raw --q 2',
+    ai_tool: 'Midjourney',
+    tags: ['cyberpunk', 'cityscape', 'neon', 'sci-fi', 'night'],
+    is_featured: true,
+    is_free: true,
+  },
+  {
+    title: 'Minimalist Product Photography',
+    description: 'Studio-quality product photography prompt for luxury goods. Creates clean, editorial-style shots with perfect lighting and shadows.',
+    category: 'image',
+    preview_url: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=800&auto=format&fit=crop',
+    prompt_text: 'minimalist luxury product photography, sleek sneaker on white marble surface, soft natural window light from left, clean geometric shadows, high-end fashion magazine editorial style, shallow depth of field, Canon R5, 85mm lens, f/1.8, commercial photography, white background --ar 1:1 --v 6.1 --style raw',
+    ai_tool: 'DALL·E 3',
+    tags: ['product', 'minimal', 'commercial', 'studio', 'luxury'],
+    is_featured: false,
+    is_free: false,
+  },
+  {
+    title: 'Renaissance AI Portrait',
+    description: 'Generate stunning Old Masters-style portraits with dramatic Rembrandt lighting. Perfect for profile pictures, art projects, and historical content.',
+    category: 'image',
+    preview_url: 'https://images.unsplash.com/photo-1578301978162-7aae4d755744?w=800&auto=format&fit=crop',
+    prompt_text: 'photorealistic portrait in Renaissance oil painting style, dramatic chiaroscuro lighting, rich impasto texture, wearing period-accurate silk garments with gold embroidery and jewels, Rembrandt-style composition, warm amber and shadow tones, museum quality, 8k, highly detailed --ar 3:4 --v 6.1 --style raw',
+    ai_tool: 'Midjourney',
+    tags: ['portrait', 'renaissance', 'art', 'oil painting', 'historical'],
+    is_featured: true,
+    is_free: false,
+  },
+  {
+    title: 'Abstract Liquid Architecture',
+    description: 'Surreal architectural forms that appear to flow like liquid metal. Great for wallpapers, album covers, and modern art prints.',
+    category: 'image',
+    preview_url: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&auto=format&fit=crop',
+    prompt_text: 'abstract liquid chrome architecture, impossible flowing metallic structures, mirror-finish surfaces reflecting infinite space, levitating geometric forms, ultra-smooth curves, warm gold accent lighting, surrealist dreamscape, Zaha Hadid meets Salvador Dali, ultra detailed, 8k --ar 16:9 --v 6.1',
+    ai_tool: 'Midjourney',
+    tags: ['abstract', 'architecture', 'surreal', 'chrome', 'art'],
+    is_featured: false,
+    is_free: false,
+  },
+  {
+    title: 'Neon Dreamscape City',
+    description: 'A painterly city at night where impressionism meets cyberpunk — swirling skies, flooded streets, and neon reflections.',
+    category: 'image',
+    preview_url: 'https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?w=800&auto=format&fit=crop',
+    prompt_text: 'dreamlike neon cityscape at night, pastel pink and purple Van Gogh swirling clouds reflecting in flooded streets, lone silhouetted figure with umbrella, impressionist brush strokes blending with cyberpunk neon signs, 4k digital painting, vibrant color palette, emotional and atmospheric --ar 9:16 --v 6.1',
+    ai_tool: 'Stable Diffusion',
+    tags: ['cityscape', 'neon', 'impressionist', 'night', 'painterly'],
+    is_featured: false,
+    is_free: false,
+  },
+  // ── VIDEO PROMPTS ────────────────────────────────────────────────────────
+  {
+    title: 'Epic Cinematic Drone Reveal',
+    description: 'A breathtaking drone shot that starts behind forest trees and rises to reveal a futuristic floating city. Cinematic quality for trailers and intros.',
+    category: 'video',
+    preview_url: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&auto=format&fit=crop',
+    prompt_text: 'Cinematic drone shot starting at ground level behind dense ancient forest trees, camera slowly rises through misty canopy with lens flare, breaks through clouds to reveal a massive futuristic city floating above endless white clouds at golden hour, sweeping orchestral score implied, photorealistic CGI quality, 10 seconds, 4K 60fps, smooth stabilized motion, IMAX aspect ratio 1.9:1',
+    ai_tool: 'Sora',
+    tags: ['cinematic', 'drone', 'reveal', 'futuristic', 'aerial'],
+    is_featured: true,
+    is_free: false,
+  },
+  {
+    title: 'Luxury Product Launch Animation',
+    description: 'Elegant product reveal animation for marketing. A smartphone materializes from light particles with holographic feature callouts.',
+    category: 'video',
+    preview_url: 'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=800&auto=format&fit=crop',
+    prompt_text: 'Sleek product reveal animation: pure black background, a premium smartphone materializes from swirling white light particles coalescing into solid form, device rotates 360 degrees showing all angles with caustic reflections, particle effects dissolve to reveal minimalist feature highlights as floating sans-serif text, Apple-style keynote aesthetic, 15 seconds, 4K 60fps, professional motion graphics',
+    ai_tool: 'Runway ML',
+    tags: ['product', 'animation', 'tech', 'marketing', 'reveal'],
+    is_featured: false,
+    is_free: false,
+  },
+  {
+    title: 'Abstract Particle Flow Loop',
+    description: 'A mesmerizing seamless loop of golden particles flowing through space. Perfect for backgrounds, music videos, and screensavers.',
+    category: 'video',
+    preview_url: 'https://images.unsplash.com/photo-1419242902214-272b3f66ee7a?w=800&auto=format&fit=crop',
+    prompt_text: 'Mesmerizing abstract seamless loop: millions of warm gold and copper particles flowing like a celestial river through deep space, forming and dissolving organic shapes — spirals, waves, and bloom forms, dark navy background with subtle star field, slow ethereal motion with depth of field blur on distant particles, relaxing ambient atmosphere, 30 second perfect loop, 4K ultra HD',
+    ai_tool: 'Pika Labs',
+    tags: ['abstract', 'particles', 'loop', 'ambient', 'background'],
+    is_featured: false,
+    is_free: false,
+  },
+  {
+    title: 'Underwater Ancient City Discovery',
+    description: 'A stunning submarine exploration of a lost civilization. Photorealistic ocean visuals with cinematic color grading for film and documentary.',
+    category: 'video',
+    preview_url: 'https://images.unsplash.com/photo-1518020382113-a7e8fc38eac9?w=800&auto=format&fit=crop',
+    prompt_text: 'Submarine POV discovery sequence of an ancient Greek-style city lost beneath tropical ocean, wide-angle lens, massive marble columns covered in colorful coral and anemones, god rays of blue-green light penetrating deep dark water, schools of exotic tropical fish swimming through stone archways, sea turtles gliding past camera, photorealistic water rendering with caustics, 20 seconds, 4K, cinematic teal-orange color grade',
+    ai_tool: 'Sora',
+    tags: ['underwater', 'cinematic', 'discovery', 'ocean', 'ancient'],
+    is_featured: true,
+    is_free: false,
+  },
+  // ── WEBSITE PROMPTS ──────────────────────────────────────────────────────
+  {
+    title: 'SaaS Analytics Landing Page',
+    description: 'Complete, production-ready landing page for a SaaS analytics tool. Includes hero, features grid, pricing table, testimonials, FAQ, and footer.',
+    category: 'website',
+    preview_url: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800&auto=format&fit=crop',
+    prompt_text: 'Create a complete, production-ready single-file HTML/CSS/JS landing page for a SaaS analytics platform called "DataFlow" with tagline "Transform your data into decisions". Include: sticky nav with logo and CTA; animated gradient hero section with dashboard mockup; social proof bar with 5 company logos; features grid (3 cols, 6 items with SVG icons); how it works (3 numbered steps); pricing table (Free $0 / Pro $29/mo / Enterprise); 3 testimonial cards; FAQ accordion with 5 Q&As; CTA banner; and 4-column footer. Design: clean minimal with blue #2563EB accent, Inter font, CSS custom properties, smooth scroll, fully mobile-responsive, hover animations. Output ONLY the complete HTML file.',
+    ai_tool: 'Claude',
+    tags: ['saas', 'landing page', 'analytics', 'complete', 'responsive'],
+    is_featured: true,
+    is_free: false,
+  },
+  {
+    title: 'Premium Sneaker Store Homepage',
+    description: 'Dark luxury e-commerce homepage for a sneaker brand with product grid, cart, hover effects, and size guide modal. Production-ready single file.',
+    category: 'website',
+    preview_url: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=800&auto=format&fit=crop',
+    prompt_text: 'Build a complete premium sneaker brand e-commerce homepage called "SOLE" in a single HTML/CSS/JS file. Include: fixed navigation with logo, nav links, search, heart, cart icon with badge; full-viewport hero with gradient background and large headline; marquee ticker strip; featured products grid (4 cards with hover quick-add); brand story split section with timeline; size guide modal; newsletter signup with validation; multi-column footer. Style: dark luxe #0A0A0A background, white text, gold #D4AF37 accents, Helvetica Neue, CSS hover animations, mobile responsive. Output complete HTML file only.',
+    ai_tool: 'GPT-4',
+    tags: ['ecommerce', 'sneakers', 'dark theme', 'luxury', 'shop'],
+    is_featured: false,
+    is_free: false,
+  },
+  {
+    title: 'Creative Portfolio Website',
+    description: 'Sophisticated dark-theme portfolio for designers/developers. Features typewriter effect, animated skill bars, lightbox gallery, and floating nav dots.',
+    category: 'website',
+    preview_url: 'https://images.unsplash.com/photo-1467232004584-a241de8bcf5d?w=800&auto=format&fit=crop',
+    prompt_text: 'Create a complete personal portfolio website in a single HTML/CSS/JS file for a senior UI/UX designer "Alex Morgan". Include: smooth-scroll one-page layout with floating dot navigation; animated hero with CSS typewriter cycling "Designer / Developer / Creator" and canvas particles; about section with animated stat counters (50+ Projects, 8 Years, 30+ Clients); skills section with animated progress bars; work portfolio with 6 masonry cards, category filter, and CSS lightbox; testimonials carousel; contact form with floating labels; dark #0D0D0D theme with purple #7C3AED accent, Inter font. Output complete HTML file only.',
+    ai_tool: 'Claude',
+    tags: ['portfolio', 'creative', 'dark theme', 'designer', 'animations'],
+    is_featured: false,
+    is_free: false,
+  },
+  {
+    title: 'Meditation App Landing Page',
+    description: 'Conversion-focused landing page for a wellness/meditation app. Gradient design, phone mockup, pricing tiers, testimonials, and App Store badges.',
+    category: 'website',
+    preview_url: 'https://images.unsplash.com/photo-1506126613408-eca07ce68773?w=800&auto=format&fit=crop',
+    prompt_text: 'Generate a complete mobile app landing page for a meditation app called "Zenith" in a single HTML/CSS/JS file. Include: navigation with logo and download CTA; hero with purple-to-indigo gradient, large headline, App Store/Google Play SVG badges, and CSS phone mockup; animated stats bar (2M+ Users, 4.9 Stars, 500+ Sessions); 3 animated feature flip cards; "How Zenith works" numbered steps; pricing section (Free / $9.99/mo / $79.99/yr highlighted); 4 testimonials with star ratings; press logos row; full-width CTA; footer. Style: soft gradients, rounded corners, Poppins font, mobile responsive. Output complete HTML file only.',
+    ai_tool: 'Claude',
+    tags: ['app landing', 'wellness', 'gradient', 'mobile', 'conversion'],
+    is_featured: true,
+    is_free: false,
+  },
+];
+
+export async function seedIfEmpty(): Promise<void> {
+  const { count } = await supabase.from('prompts').select('*', { count: 'exact', head: true });
+  if ((count ?? 0) > 0) return;
+
+  const { error } = await supabase.from('prompts').insert(PROMPTS);
+  if (error) {
+    console.error('Seed error:', error.message);
+  } else {
+    console.log(`✅  Seeded ${PROMPTS.length} prompts`);
+  }
+}
