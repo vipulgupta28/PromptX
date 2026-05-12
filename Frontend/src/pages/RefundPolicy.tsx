@@ -79,7 +79,7 @@ const sections = [
           {[
             'Your registered email address.',
             'The date and approximate time of the purchase.',
-            'Your Stripe payment confirmation or receipt number (available in your confirmation email).',
+            'Your Paddle payment confirmation or receipt number (available in your confirmation email).',
             'A clear description of the issue you experienced.',
             'Any relevant screenshots or error messages.',
           ].map((item) => (
@@ -131,7 +131,7 @@ const sections = [
     content: (
       <>
         <p>
-          If your refund is approved, we will initiate the refund through Stripe to your original payment method. Processing times are as follows:
+          If your refund is approved, we will initiate the refund through Paddle to your original payment method. Processing times are as follows:
         </p>
         <ul className="list-none space-y-2 mt-2">
           {[
